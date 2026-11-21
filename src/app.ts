@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import config from "./config";
 import { prisma } from "./lib/prisma";
 import { userRoutes } from "./modules/user/user.routes";
+import { authRoutes } from "./modules/auth/auth.routes";
 
 const app: Application = express();
 
@@ -21,6 +22,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Shanto vai your blog post application is running...!");
 });
  
-app.use('/api/users', userRoutes)
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes)
 
 export default app;
