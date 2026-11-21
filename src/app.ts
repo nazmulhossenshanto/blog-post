@@ -2,6 +2,8 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import config from "./config";
+import { prisma } from "./lib/prisma";
+import { userRoutes } from "./modules/user/user.routes";
 
 const app: Application = express();
 
@@ -13,12 +15,12 @@ app.use(cors({
   credentials: true
 }));
 
+//  basic route
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Shanto vai your blog post application is running...!");
 });
-
-// app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`);
-// });
+ 
+app.use('/api/users', userRoutes)
 
 export default app;
