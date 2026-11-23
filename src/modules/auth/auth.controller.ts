@@ -32,12 +32,19 @@ const loginUser = catchAsync(async(req: Request, res: Response)=>{
 
 const refreshToken = catchAsync(async(req: Request, res: Response)=>{
     const refreshToken = req.cookies.refreshToken;  
-    const token = await authService.refreshToken(refreshToken);
+    const {accessToken} = await authService.refreshToken(refreshToken);
+
+     res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 1000 // 1 day
+    })
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "Token refreshed successfully!",
-        data: token
+        data: {accessToken}
     })
 })
 

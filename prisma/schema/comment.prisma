@@ -1,0 +1,18 @@
+model Comment {
+  id        String        @id @default(uuid())
+  content   String
+  status    CommentStatus @default(APPROVED)
+  postId    String
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+  @@index([status, createdAt])
+  @@map("comments")
+}
+
+
