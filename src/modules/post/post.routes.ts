@@ -7,8 +7,9 @@ import { Role } from "../../generated/prisma/enums";
 const router = Router();
 
 router.post('/', auth(Role.ADMIN, Role.AUTHOR, Role.USER), postController.createPost);
+router.get('/my-posts', auth(Role.ADMIN, Role.AUTHOR, Role.USER), postController.getMyPosts)
 
-router.get('/:postId', postController.getPostByPostId);
 router.get('/', postController.getAllPosts)
+router.get('/:postId', postController.getPostByPostId);
 
 export const postRoutes = router;

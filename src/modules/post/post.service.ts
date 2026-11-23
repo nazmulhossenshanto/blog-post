@@ -27,11 +27,21 @@ const getPostByPostId = async (postId: string)=>{
 const getAllPosts = async()=>{
    const allPosts = await prisma.post.findMany();
    return allPosts;
+};
+
+const getMyPosts = async(userId: string)=>{
+  const posts = await prisma.post.findMany({
+    where: {
+      authorId: userId
+    }
+  })
+  return posts;
 }
 
 
 export const postService = {
     createPostIntoDB,
     getPostByPostId,
-    getAllPosts
+    getAllPosts,
+    getMyPosts
 }
