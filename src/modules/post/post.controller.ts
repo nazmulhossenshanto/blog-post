@@ -31,9 +31,21 @@ const getPostByPostId = catchAsync(async(req: Request, res: Response)=>{
 
 })
 
+// const getAllPosts = catchAsync(async(req: Request, res: Response)=>{});
+const getAllPosts = catchAsync(async (req: Request, res: Response) => {
+    const result = await postService.getAllPosts();
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Retrived all posts",
+      data: result,
+    });
+
+});
 
 
 export const postController = {
     createPost,
-    getPostByPostId
+    getPostByPostId,
+    getAllPosts
 }
