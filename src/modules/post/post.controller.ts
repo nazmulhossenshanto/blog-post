@@ -18,8 +18,22 @@ const createPost = catchAsync(async(req: Request, res: Response)=>{
 
 });
 
+const getPostByPostId = catchAsync(async(req: Request, res: Response)=>{
+    const id = req.params.postId;
+    const result = await postService.getPostByPostId(id as string);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Retrived post by postId", 
+        data: result
+    })
+
+})
+
 
 
 export const postController = {
-    createPost
+    createPost,
+    getPostByPostId
 }

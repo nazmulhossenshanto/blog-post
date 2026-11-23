@@ -13,9 +13,19 @@ const createPostIntoDB = async( userId: string, payload: ICreatePostPayload)=>{
 
     return post;
 
-}
+};
+
+const getPostByPostId = async (postId: string)=>{
+  const post = await prisma.post.findUnique({
+    where: {
+      id: postId
+    }
+  });
+  return post;
+};
 
 
 export const postService = {
-    createPostIntoDB
+    createPostIntoDB,
+    getPostByPostId
 }
