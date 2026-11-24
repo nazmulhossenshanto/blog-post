@@ -18,18 +18,7 @@ const createPost = catchAsync(async(req: Request, res: Response)=>{
 
 });
 
-const getPostByPostId = catchAsync(async(req: Request, res: Response)=>{
-    const id = req.params.postId;
-    const result = await postService.getPostByPostId(id as string);
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: "Retrived post by postId", 
-        data: result
-    })
-
-})
 
 // const getAllPosts = catchAsync(async(req: Request, res: Response)=>{});
 const getAllPosts = catchAsync(async (req: Request, res: Response) => {
@@ -43,6 +32,21 @@ const getAllPosts = catchAsync(async (req: Request, res: Response) => {
 
 });
 
+const updatePost = catchAsync(async (req: Request, res: Response) => {
+    const postId = req.params.postId as string;
+    const authorId = req.user?.id as string;
+    const payload = req.body;
+    const isAdmin = req.user?.role === "ADMIN";
+    const result = await postService.updatePost(postId, payload, authorId, isAdmin);
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "Post updated successfull!",
+        data: result
+    })
+});
+
+
 const getMyPosts = catchAsync(async(req: Request, res: Response)=>{
     const userId = req.user?.id as string;
     const result = await postService.getMyPosts(userId);
@@ -52,12 +56,28 @@ const getMyPosts = catchAsync(async(req: Request, res: Response)=>{
       message: "Retrived My all posts",
       data: result,
     });
-})
+});
+
+const getPostByPostId = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.postId;
+  if (!id) {
+    throw new Error("PostId Required!");
+  }
+  const result = await postService.getPostByPostId(id as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Retrived post by postId",
+    data: result,
+  });
+});
 
 
 export const postController = {
     createPost,
-    getPostByPostId,
     getAllPosts,
-    getMyPosts
+    updatePost,
+    getMyPosts,
+    getPostByPostId,
 }

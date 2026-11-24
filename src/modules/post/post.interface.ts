@@ -8,3 +8,11 @@ import { PostStatus } from "../../generated/prisma/enums";
     status?: PostStatus;
     tags: string[];
 }
+ export interface IUpdatePostPayload {
+    title?: string;
+    content?: string;
+    thumbnail?: string | null;
+    isFeatured?: boolean;
+    status?: PostStatus;
+    tags?: string[];
+}
