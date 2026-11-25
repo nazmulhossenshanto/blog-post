@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { ICreateCommentPayload } from "./comment.interface";
+import { ICreateCommentPayload, IUpdateCommentPayload } from "./comment.interface";
 
 const createComment = async(payload: ICreateCommentPayload, userId: string)=>{
 
@@ -97,6 +97,47 @@ const getCommentByAuthorId = async (authorId: string)=>{
         }
     });
     return comments;
+};
+
+const updateComment = async(payload: IUpdateCommentPayload, commentId:string, authorId: string)=>{
+    const comment = await prisma.comment.findUnique({
+        where: {
+            id: commentId
+        }
+    });
+
+    if(!comment){
+        throw new Error("Comment not found")
+    };
+    if(comment.authorId !== authorId){
+        throw new Error("You don't have permision to update this comment!")
+    };
+    const updatedComment = await prisma.comment.update({
+        where: {
+            id: comment.id
+        },
+        data: {
+            content: payload.content
+        },
+        include: {
+            post: {
+                select: {
+                    id: true,
+                    title: true,
+                    thumbnail: true,
+                    status: true
+                }
+            },
+            author: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
+        }
+    });
+
+    return updatedComment;
 }
 
 
@@ -105,4 +146,5 @@ export const commentService = {
   createComment,
   getCommentById,
   getCommentByAuthorId,
+  updateComment,
 };

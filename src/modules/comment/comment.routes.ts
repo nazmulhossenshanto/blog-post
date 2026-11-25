@@ -13,6 +13,7 @@ router.get("/:commentId", commentController.getCommentById);
 
 // protected api
 router.post('/', auth(Role.ADMIN, Role.AUTHOR, Role.USER), commentController.createComment);
+router.patch('/:commentId', auth(Role.USER), commentController.updateComment)
 
 
 
