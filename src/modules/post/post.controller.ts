@@ -40,7 +40,7 @@ const updatePost = catchAsync(async (req: Request, res: Response) => {
     const result = await postService.updatePost(postId, payload, authorId, isAdmin);
     sendResponse(res, {
         success: true,
-        statusCode: httpStatus.CREATED,
+        statusCode: httpStatus.OK,
         message: "Post updated successfull!",
         data: result
     })
@@ -73,6 +73,19 @@ const getPostByPostId = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deletePost = catchAsync(async (req: Request, res: Response) => {
+  const postId = req.params.postId as string;
+  const userId = req.user?.id as string; 
+  const isAdmin = req.user?.role === "ADMIN";
+  const result = await postService.deletePost(postId, userId, isAdmin);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Post deleted successfull!",
+    data: result,
+  });
+});
+
 
 export const postController = {
     createPost,
@@ -80,4 +93,5 @@ export const postController = {
     updatePost,
     getMyPosts,
     getPostByPostId,
+    deletePost
 }

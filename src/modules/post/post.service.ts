@@ -106,10 +106,34 @@ const getPostByPostId = async (postId: string) => {
   return updatedPost;
 };
 
+
+const deletePost = async (postId:string, userId:string, isAdmin : boolean)=>{
+
+  const post = await prisma.post.findUniqueOrThrow({
+    where: {
+      id: postId
+    }
+  });
+
+  if (!isAdmin && post.authorId !== userId) {
+    throw new Error("Only Admin or Post Woner can update a post!");
+  }
+
+  const deletedPost = await prisma.post.delete({
+    where: {
+      id: postId
+    }
+  });
+
+  return deletedPost;
+
+}
+
 export const postService = {
   createPostIntoDB,
   getMyPosts,
   updatePost,
   getPostByPostId,
   getAllPosts,
+  deletePost
 };
