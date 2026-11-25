@@ -174,52 +174,57 @@ const deletePost = async (postId:string, userId:string, isAdmin : boolean)=>{
 const getPostStats = async()=>{
   const transactionResult = await prisma.$transaction(
     async (tx)=>{
-
-      const totalPost = await tx.post.count();
-      const totalPublishedPosts = await tx.post.count({
+  
+    const [
+      totalPost,
+      totalPublishedPosts,
+      totalDraftPosts,
+      totalComments,
+      approvedComments,
+      totalUsers,
+      totalAdmin,
+      totalPostViews,
+    ] = await Promise.all([
+      await tx.post.count(),
+      await tx.post.count({
         where: {
-          status: PostStatus.PUBLISHED
-        }
-      });
-
-      const totalDraftPosts = await tx.post.count({
+          status: PostStatus.PUBLISHED,
+        },
+      }),
+      await tx.post.count({
         where: {
-          status: PostStatus.DRAFT
-        }
-      });
-
-      const totalComments = await tx.comment.count();
-      const approvedComments = await tx.comment.count({
+          status: PostStatus.DRAFT,
+        },
+      }),
+      await tx.comment.count(),
+      await tx.comment.count({
         where: {
-          status: CommentStatus.APPROVED
-        }
-      });
-
-      const totalUsers = await tx.user.count();
-      const totalAdmin = await tx.user.count({
+          status: CommentStatus.APPROVED,
+        },
+      }),
+      await tx.user.count(),
+      await tx.user.count({
         where: {
-          role: Role.ADMIN
-        }
-      });
-
-      const totalViews = await tx.post.aggregate({
+          role: Role.ADMIN,
+        },
+      }),
+      await tx.post.aggregate({
         _sum: {
-          views:true
-        }
-      });
+          views: true,
+        },
+      }),
+    ]); 
+return {
+  totalPost,
+  totalPublishedPosts,
+  totalDraftPosts,
+  totalComments,
+  approvedComments,
+  totalUsers,
+  totalAdmin,
+  totalPostViews : totalPostViews._sum.views,
+};
 
-      const totalPostViews = totalViews._sum.views ?? 0;
-
-      return {
-        totalPost,
-        totalPublishedPosts,
-        totalDraftPosts,
-        totalComments,
-        approvedComments,
-        totalUsers,
-        totalAdmin,
-        totalPostViews,  
-      };
     }, {
       maxWait: 10000, 
       timeout: 20000
