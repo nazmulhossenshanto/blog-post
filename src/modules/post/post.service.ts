@@ -1,3 +1,4 @@
+import { CommentStatus, PostStatus, Role } from "../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { ICreatePostPayload, IUpdatePostPayload } from "./post.interface";
 
@@ -55,17 +56,7 @@ const updatePost = async (
   userId: string,
   isAdmin: boolean,
 ) => {
-  const post = await prisma.post.findUniqueOrThrow({
-    where: {
-      id: postId,
-    },
-  });
-
-  if (!isAdmin && post.authorId !== userId) {
-    throw new Error("Only Admin or Post Woner can update a post!");
-  }
-
-  const updatedPost = await prisma.post.update({
+   await prisma.post.update({
     where: {
       id: postId,
     },
@@ -78,32 +69,83 @@ const updatePost = async (
     },
   });
 
-  return updatedPost;
-};
-
-const getPostByPostId = async (postId: string) => {
-  await prisma.post.findUniqueOrThrow({
+  const post = await prisma.post.findUniqueOrThrow({
     where: {
-      id: postId,
-    },
-  });
-  const updatedPost = await prisma.post.update({
-    where: {
-      id: postId,
-    },
-    data: {
-      views: {
-        increment: 1,
-      },
+      id: postId
     },
     include: {
       author: {
-        omit: { password: true },
+        omit: { 
+          password: true
+        }
       },
-      comments: true,
-    },
-  });
-  return updatedPost;
+      comments: {
+        where : {
+          status: CommentStatus.APPROVED
+        },
+        orderBy: {
+          createdAt: "desc"
+        }, 
+      },
+      _count: {
+        select: {
+          comments: true
+        }
+      }
+    }
+  })
+
+  return post;
+};
+
+const getPostByPostId = async (postId: string) => {
+  
+ const transactionResult = await prisma.$transaction(
+  async (tx)=>{
+    await tx.post.update({
+      where: {
+        id: postId
+      },
+      data: {
+        views: {
+          increment: 1
+        }
+      }
+    });
+
+    const post = await tx.post.findUniqueOrThrow({
+      where: {
+        id: postId,
+      }, 
+      include: {
+        author: {
+          omit: { password: true },
+          
+        },
+        
+         comments: {
+          where: {
+            status: CommentStatus.APPROVED
+          },
+          orderBy: {
+            createdAt: "desc"
+          }
+          
+         },
+         _count: {
+          select: {
+            comments: true
+          }
+         }
+      },
+    });
+
+    return post;
+  }
+ );
+
+ return transactionResult;
+
 };
 
 
@@ -127,6 +169,48 @@ const deletePost = async (postId:string, userId:string, isAdmin : boolean)=>{
 
   return deletedPost;
 
+};
+
+const getPostStats = async()=>{
+  const transactionResult = await prisma.$transaction(
+    async (tx)=>{
+
+      const totalPost = await tx.post.count();
+      const totalPublishedPosts = await tx.post.count({
+        where: {
+          status: PostStatus.PUBLISHED
+        }
+      });
+
+      const totalDraftPosts = await tx.post.count({
+        where: {
+          status: PostStatus.DRAFT
+        }
+      });
+
+      const totalComments = await tx.comment.count();
+      const approvedComments = await tx.comment.count({
+        where: {
+          status: CommentStatus.APPROVED
+        }
+      });
+
+      const totalUsers = await tx.user.count();
+      const totalAdmin = await tx.user.count({
+        where: {
+          role: Role.ADMIN
+        }
+      });
+
+      const totalViews = await tx.post.count({
+        where: {
+           
+        }
+      })
+
+
+    }
+  )
 }
 
 export const postService = {
