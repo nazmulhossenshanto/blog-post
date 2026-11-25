@@ -202,15 +202,31 @@ const getPostStats = async()=>{
         }
       });
 
-      const totalViews = await tx.post.count({
-        where: {
-           
+      const totalViews = await tx.post.aggregate({
+        _sum: {
+          views:true
         }
-      })
+      });
 
+      const totalPostViews = totalViews._sum.views ?? 0;
 
+      return {
+        totalPost,
+        totalPublishedPosts,
+        totalDraftPosts,
+        totalComments,
+        approvedComments,
+        totalUsers,
+        totalAdmin,
+        totalPostViews,  
+      };
+    }, {
+      maxWait: 10000, 
+      timeout: 20000
     }
-  )
+  );
+
+  return transactionResult;
 }
 
 export const postService = {
@@ -219,5 +235,6 @@ export const postService = {
   updatePost,
   getPostByPostId,
   getAllPosts,
-  deletePost
+  deletePost,
+  getPostStats
 };
