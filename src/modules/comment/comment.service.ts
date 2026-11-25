@@ -1,5 +1,6 @@
+import { CommentStatus } from "../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { ICreateCommentPayload, IUpdateCommentPayload } from "./comment.interface";
+import { ICreateCommentPayload, IModerateComment, IUpdateCommentPayload } from "./comment.interface";
 
 const createComment = async(payload: ICreateCommentPayload, userId: string)=>{
 
@@ -170,6 +171,41 @@ const deleteComment = async(commentId: string, authorId:string)=>{
     return deletedComment;
 }
 
+const moderateComment = async(commentId: string, payload: IModerateComment)=>{
+    const comment = await prisma.comment.findUnique({
+        where: {
+            id: commentId
+        }
+    });
+    if(!comment){
+        throw new Error("Comment not found!")
+    };
+    const updatedComment = await prisma.comment.update({
+        where: {
+            id: commentId
+        },
+        data: {
+            status: payload.status as CommentStatus
+        },
+        include: {
+            post: {
+                select:{
+                    id: true,
+                    title: true
+                }
+            },
+            author: {
+                select: {
+                    id:true,
+                    name: true
+                }
+            }
+        }
+    });
+
+    return updatedComment;
+}
+
 
 
 export const commentService = {
@@ -177,5 +213,6 @@ export const commentService = {
   getCommentById,
   getCommentByAuthorId,
   updateComment,
-  deleteComment
+  deleteComment,
+  moderateComment
 };

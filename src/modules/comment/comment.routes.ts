@@ -15,6 +15,7 @@ router.get("/:commentId", commentController.getCommentById);
 router.post('/', auth(Role.ADMIN, Role.AUTHOR, Role.USER), commentController.createComment);
 router.patch('/:commentId', auth(Role.USER), commentController.updateComment)
 router.delete('/:commentId', auth(Role.USER, Role.ADMIN, Role.AUTHOR), commentController.deleteComment)
+router.put('/:commentId/moderate', auth( Role.ADMIN ), commentController.moderateComment)
 
 
 

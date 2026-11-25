@@ -5,3 +5,6 @@ export interface ICreateCommentPayload{
 export interface IUpdateCommentPayload{
     content?: string,
 }
+export interface IModerateComment{
+    status: "APPROVED" | "REJECTED"
+}

@@ -68,7 +68,7 @@ const deleteComment = catchAsync(async (req: Request, res: Response) => {
   const commentId = req.params.commentId; 
   const authorId = req.user?.id as string;
   if (!authorId) {
-    throw new Error("CommentId require in params");
+    throw new Error("CommentId required in params");
   }
   const result = await commentService.deleteComment( 
     commentId as string,
@@ -83,11 +83,26 @@ const deleteComment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const moderateComment = catchAsync(async(req: Request, res: Response)=>{
+  const commentId = req.params.commentId;
+  if(!commentId){
+    throw new Error("Comment Id required in params")
+  }
+  const result = await commentService.moderateComment(commentId as string, req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message:"Comment moderation complete successfully!", 
+    data: result
+  })
+})
+
 
 export const commentController = {
   createComment,
   getCommentById,
   getCommentByAuthorId,
   updateComment,
-  deleteComment
+  deleteComment,
+  moderateComment
 };
