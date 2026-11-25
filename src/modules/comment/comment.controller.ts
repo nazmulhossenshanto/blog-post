@@ -64,10 +64,30 @@ const updateComment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deleteComment = catchAsync(async (req: Request, res: Response) => {
+  const commentId = req.params.commentId; 
+  const authorId = req.user?.id as string;
+  if (!authorId) {
+    throw new Error("CommentId require in params");
+  }
+  const result = await commentService.deleteComment( 
+    commentId as string,
+    authorId,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Comment deleted successfully!",
+    data: result,
+  });
+});
+
 
 export const commentController = {
   createComment,
   getCommentById,
   getCommentByAuthorId,
   updateComment,
+  deleteComment
 };

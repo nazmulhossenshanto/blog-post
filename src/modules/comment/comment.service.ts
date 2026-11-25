@@ -88,13 +88,23 @@ const getCommentByAuthorId = async (authorId: string)=>{
             author: {
                 select: {
                     id: true,
-                    name: true
-                }
-            }
+                    name: true,
+                    _count: {
+                        select: {
+                            comments: true
+                        }
+                    }
+                },
+                
+            },
+            
+        
         },
         orderBy: {
             createdAt: "desc"
-        }
+        },
+        
+        
     });
     return comments;
 };
@@ -138,6 +148,26 @@ const updateComment = async(payload: IUpdateCommentPayload, commentId:string, au
     });
 
     return updatedComment;
+};
+
+const deleteComment = async(commentId: string, authorId:string)=>{
+    const comment = await prisma.comment.findUnique({
+        where: {
+            id: commentId
+        }
+    });
+    if(!comment){
+        throw new Error("Comment not found!")
+    };
+    if(comment.authorId !== authorId){
+        throw new Error("You don't have permision to delete this post!")
+    };
+    const deletedComment = await prisma.comment.delete({
+      where: {
+        id: commentId,
+      },
+    });
+    return deletedComment;
 }
 
 
@@ -147,4 +177,5 @@ export const commentService = {
   getCommentById,
   getCommentByAuthorId,
   updateComment,
+  deleteComment
 };
