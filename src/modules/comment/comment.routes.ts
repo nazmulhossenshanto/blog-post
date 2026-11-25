@@ -7,6 +7,7 @@ import { commentController } from "./comment.controller";
 const router = Router();
 
 // public api 
+router.get('/author/:authorId', commentController.getCommentByAuthorId)
 router.get("/:commentId", commentController.getCommentById);
 
 
